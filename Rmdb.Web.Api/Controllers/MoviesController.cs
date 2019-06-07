@@ -43,6 +43,8 @@ namespace Rmdb.Web.Api.Controllers
         public async Task<ActionResult> Post([FromBody] AddMovieDto addMovie)
         {
             var id = await _movieService.AddAsync(addMovie);
+            
+            // TODO: get movie to return as response body
 
             return CreatedAtAction("Get", new { Id = id });
         }

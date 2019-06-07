@@ -85,7 +85,7 @@ namespace Rmdb.Web.Client.Data.SessionStorage
             _actors = JsonConvert.DeserializeObject<Actor[]>(content).ToList();
         }
 
-        public void Save()
+         public void Save()
         {
             // decouple movieActors
             var actors = _actors.Select(a =>

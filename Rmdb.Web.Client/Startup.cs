@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -70,7 +72,7 @@ namespace Rmdb.Web.Client
                 .AddCookie("RMDBCookies")
                 .AddOpenIdConnect("oidc", options =>
                 {
-                    options.Authority = "https://localhost:44359/";
+                    options.Authority = "https://localhost:44351";
                     options.RequireHttpsMetadata = true;
 
                     // Use the hybrid grant, but ensure access tokens aren't exposed
@@ -83,6 +85,27 @@ namespace Rmdb.Web.Client
                     options.GetClaimsFromUserInfoEndpoint = true;
                     options.SaveTokens = true;
                 });
+
+
+            services.AddHttpClient("MoviesClient", client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:52330/");
+                client.Timeout = new TimeSpan(0, 0, 30);
+                client.DefaultRequestHeaders.Clear();
+                // all requests = gzip, so it's safe to add it as a default header
+                client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+            }).ConfigurePrimaryHttpMessageHandler(handler =>
+            new HttpClientHandler()
+            {
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip
+            });
+
+            services.AddHttpClient("ActorsClient", client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:52330/");
+                client.Timeout = new TimeSpan(0, 0, 30);
+                client.DefaultRequestHeaders.Clear();
+            });
         }
 
 
@@ -106,6 +129,8 @@ namespace Rmdb.Web.Client
             app.UseStaticFiles();
             // for demo purposes
             app.UseSession();
+
+
 
             app.UseMvc(routes =>
             {

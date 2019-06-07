@@ -37,6 +37,16 @@ namespace Rmdb.Web.Api
 
             services.AddTransient<IMovieService, MovieService>();
             services.AddTransient<IActorService, ActorService>();
+
+            // response compression (gzip)
+            services.AddResponseCompression(options =>
+            {
+                // carefull: com­pres­sion in TLS is com­promised due to BREACH at­tack. 
+                // How­ever, if your cook­ies fol­lows same-site pol­icy, your site is pro­tected against CSRF and BREACH at­tacks.
+                // (source: https://dajbych.net/how-to-enable-response-compression-in-asp-net-core-2-with-gzip-and-brotli-encoding)
+                // & https://brockallen.com/2019/01/11/same-site-cookies-asp-net-core-and-external-authentication-providers/
+                options.EnableForHttps = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

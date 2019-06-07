@@ -128,7 +128,8 @@ namespace Rmdb.Web.Client.Data.SessionStorage
             _movies = JsonConvert.DeserializeObject<Movie[]>(content).ToList();
         }
 
-        public void Save()
+        // kedoc => make private
+        private void Save()
         {
             // uncouple movieactors to prevent json infinite loop
             var movies = _movies.Select(m =>

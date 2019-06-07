@@ -20,6 +20,7 @@ namespace Rmdb.Web.Client.Data.Contracts
 
         Task DeleteAsync(Guid id);
 
-        void Save();
+        // kedoc - remove save from public contract
+        // void Save();
     }
 }
