@@ -32,12 +32,13 @@ namespace Rmdb.Web.Client
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Mapper.Initialize(cfg =>
+            //{
+            //    cfg.AddProfile<ActorMapperProfile>();
+            //    cfg.AddProfile<MovieMapperProfile>();
+            //});
 
-            Mapper.Initialize(cfg =>
-            {
-                cfg.AddProfile<ActorMapperProfile>();
-                cfg.AddProfile<MovieMapperProfile>();
-            });
+            services.AddAutoMapper(typeof(Startup));
 
             // added for demo purposes
             services.AddDistributedMemoryCache();

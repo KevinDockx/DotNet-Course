@@ -1,4 +1,5 @@
-﻿using Marvin.StreamExtensions;
+﻿using AutoMapper;
+using Marvin.StreamExtensions;
 using Rmdb.Domain.Dtos.Actors;
 using Rmdb.Domain.Dtos.Movies;
 using Rmdb.Web.Client.Data.Contracts;
@@ -17,10 +18,12 @@ namespace Rmdb.Web.Client.Data.Api
     public class MovieApiService : IMovieService
     { 
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMapper _mapper;
 
-        public MovieApiService(IHttpClientFactory httpClientFactory)
+        public MovieApiService(IHttpClientFactory httpClientFactory, IMapper mapper)
         {
-            _httpClientFactory = httpClientFactory;
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory)); ;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<MovieActor> AddActorAsync(Guid movieId, Guid actorId)
@@ -65,8 +68,7 @@ namespace Rmdb.Web.Client.Data.Api
                         response.EnsureSuccessStatusCode();
 
                         var stream = await response.Content.ReadAsStreamAsync();
-                        var actor = stream.ReadAndDeserializeFromJson<ActorListDto>();
-                        return new MovieActor(movieId, actorId);
+                        return _mapper.Map<MovieActor>(stream.ReadAndDeserializeFromJson<ActorListDto>());
                     }
                 }
             } 
@@ -81,8 +83,10 @@ namespace Rmdb.Web.Client.Data.Api
 
             var client = _httpClientFactory.CreateClient("MoviesClient");
 
+            var movieToAdd = _mapper.Map<AddMovieDto>(movie);
+
             var memoryContentStream = new MemoryStream();
-            memoryContentStream.SerializeToJsonAndWrite(movie,
+            memoryContentStream.SerializeToJsonAndWrite(movieToAdd,
                           new UTF8Encoding(), 1024, true);
             memoryContentStream.Seek(0, SeekOrigin.Begin);
 
@@ -105,24 +109,30 @@ namespace Rmdb.Web.Client.Data.Api
                         response.EnsureSuccessStatusCode();
 
                         var stream = await response.Content.ReadAsStreamAsync();
-                        var movieDetail = stream.ReadAndDeserializeFromJson<MovieDetailDto>();
-
-                        // TODO: map moviedetaildto to movie model...
-                        return new Movie(movieDetail.Title); 
+                        return _mapper.Map<Movie>(
+                            stream.ReadAndDeserializeFromJson<MovieDetailDto>()); 
                     }
                 }
             }
         }
 
-        public Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
             if (id == Guid.Empty)
             {
                 throw new ArgumentException($"{nameof(id)} cannot be empty.", nameof(id));
             }
 
-            throw new NotImplementedException();
-                }
+            var client = _httpClientFactory.CreateClient("MoviesClient");
+
+            var request = new HttpRequestMessage(
+                HttpMethod.Delete,
+                $"api/movies/{id}");
+             
+            var response = await client.SendAsync(request);
+
+            response.EnsureSuccessStatusCode();
+        }
 
         public async Task<IEnumerable<Movie>> GetAllAsync()
         {
@@ -139,10 +149,8 @@ namespace Rmdb.Web.Client.Data.Api
             {
                 var stream = await response.Content.ReadAsStreamAsync();
                 response.EnsureSuccessStatusCode();
-                var movieList = stream.ReadAndDeserializeFromJson<List<MovieDetailDto>>();
-
-                // TODO: map moviedetaildto list to movie model...
-                return new List<Movie>();
+                return _mapper.Map<IEnumerable<Movie>>(
+                    stream.ReadAndDeserializeFromJson<List<MovieDetailDto>>());
             }
         }
 
@@ -166,9 +174,7 @@ namespace Rmdb.Web.Client.Data.Api
             {
                 var stream = await response.Content.ReadAsStreamAsync();
                 response.EnsureSuccessStatusCode();
-                var movieDetail = stream.ReadAndDeserializeFromJson<MovieDetailDto>();
-                // TODO: map moviedetaildto to movie model...
-                return new Movie(movieDetail.Title);
+                return _mapper.Map<Movie>(stream.ReadAndDeserializeFromJson<MovieDetailDto>());
             }
         }
          
