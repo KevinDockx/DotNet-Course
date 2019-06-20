@@ -19,23 +19,25 @@ namespace Rmdb.Web.Client.Data.Api
 {
     public class MovieApiService : IMovieService
     {
-        private HttpClient _httpClient = new HttpClient();
+        //  private HttpClient _httpClient = new HttpClient();
 
-        // enable automatic decompression
-        //private HttpClient _httpClient = new HttpClient(
-        // new HttpClientHandler()
-        // {
-        //     AutomaticDecompression = System.Net.DecompressionMethods.GZip
-        // });
+       
+        private HttpClient _httpClient = new HttpClient(
+         new HttpClientHandler()
+         {
+             AutomaticDecompression = System.Net.DecompressionMethods.GZip
+         });
 
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMapper _mapper;
 
-        public MovieApiService(IMapper mapper)
+        public MovieApiService(IMapper mapper, IHttpClientFactory httpClientFactory)
         {
             _mapper = mapper ?? 
                 throw new ArgumentNullException(nameof(mapper));
+            _httpClientFactory = httpClientFactory ??
+                throw new ArgumentNullException(nameof(httpClientFactory));
 
             // set up httpclient defaults
             _httpClient.BaseAddress = new Uri("http://localhost:52330/");
@@ -55,7 +57,7 @@ namespace Rmdb.Web.Client.Data.Api
 
         #region GetAllAsync 
         //public async Task<IEnumerable<Movie>> GetAllAsync()
-        //{             
+        //{
         //    var request = new HttpRequestMessage(
         //        HttpMethod.Get,
         //       "api/movies");
@@ -67,7 +69,7 @@ namespace Rmdb.Web.Client.Data.Api
 
         //    var content = await response.Content.ReadAsStringAsync();
         //    var movies = JsonConvert.DeserializeObject<IEnumerable<MovieListDto>>(content);
-        //    return _mapper.Map<IEnumerable<Movie>>(movies); 
+        //    return _mapper.Map<IEnumerable<Movie>>(movies);
         //}
         #endregion
 
@@ -95,7 +97,7 @@ namespace Rmdb.Web.Client.Data.Api
         //                return _mapper.Map<IEnumerable<Movie>>(movies);
         //            }
         //        }
-        //    }              
+        //    }
         //}
         #endregion
 
@@ -108,7 +110,7 @@ namespace Rmdb.Web.Client.Data.Api
 
         //    request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        //    using (var response = await _httpClient.SendAsync(request, 
+        //    using (var response = await _httpClient.SendAsync(request,
         //        HttpCompletionOption.ResponseHeadersRead))
         //    {
         //        response.EnsureSuccessStatusCode();
@@ -228,7 +230,7 @@ namespace Rmdb.Web.Client.Data.Api
                 throw new ArgumentNullException(nameof(movie));
             }
 
-            var client = _httpClientFactory.CreateClient("MoviesClient");
+            //var client = _httpClientFactory.CreateClient("MoviesClient");
 
             var movieToAdd = _mapper.Map<AddMovieDto>(movie);
 
@@ -250,7 +252,7 @@ namespace Rmdb.Web.Client.Data.Api
                     request.Content.Headers.ContentType =
                       new MediaTypeHeaderValue("application/json");
 
-                    using (var response = await client
+                    using (var response = await _httpClient
                         .SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
                     {
                         response.EnsureSuccessStatusCode();

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Rmdb.Domain.Dtos</name>
+    </assembly>
+    <members>
+        <member name="P:Rmdb.Domain.Dtos.Actors.AddActorDto.Name">
+            <summary>
+            The actor's name
+            </summary>
+        </member>
+        <member name="P:Rmdb.Domain.Dtos.Actors.AddActorDto.LastName">
+            <summary>
+            The actor's lastname
+            </summary>
+        </member>
+        <member name="P:Rmdb.Domain.Dtos.Movies.MovieListDto.Title">
+            <summary>
+            The movie title
+            </summary>
+        </member>
+    </members>
+</doc>

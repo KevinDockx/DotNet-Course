@@ -12,7 +12,7 @@ namespace Rmdb.Web.Api.OperationFilters
     public class GetMovieOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
-        {
+        {         
             if (operation.OperationId != "GetMovieWithActors")
             {
                 return;

@@ -38,29 +38,29 @@ namespace Rmdb.Web.Api.Controllers
             return Ok(await _movieService.GetAsync());
         }
 
-        // GET api/movies/{id}
-        //[HttpGet("{id:Guid}")]
-        //[RequestHeaderMatchesMediaType(HeaderNames.Accept,
-        //    "application/vnd.rmdb.movie+json")]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //// [ApiExplorerSettings(IgnoreApi = true)]
-        //public async Task<ActionResult<MovieDetailDto>> GetMovie(Guid id)
-        //{
-        //    if (id == Guid.Empty)
-        //    {
-        //        return BadRequest();
-        //    }
+        
+        [HttpGet("{id:Guid}")]
+        [RequestHeaderMatchesMediaType(HeaderNames.Accept,
+            "application/vnd.rmdb.movie+json")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult<MovieDetailDto>> GetMovie(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest();
+            }
 
-        //    var movie = await _movieService.GetAsync(id);
+            var movie = await _movieService.GetAsync(id);
 
-        //    if (movie == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (movie == null)
+            {
+                return NotFound();
+            }
 
-        //    return Ok(movie);
-        //}
+            return Ok(movie);
+        }
       
         [HttpGet("{id:Guid}", Name = "GetMovieWithActors")]
         [RequestHeaderMatchesMediaType(HeaderNames.Accept,
@@ -101,8 +101,8 @@ namespace Rmdb.Web.Api.Controllers
 
         // PUT api/movies/{id}
         [HttpPut("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]      
         public async Task<IActionResult> Put(Guid id, [FromBody] EditMovieDto editMovie)
         {
             var movie = await _movieService.UpdateAsync(id, editMovie);
@@ -116,12 +116,7 @@ namespace Rmdb.Web.Api.Controllers
         }
 
         [HttpPatch("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary), 
-            StatusCodes.Status422UnprocessableEntity)]
-        [ProducesDefaultResponseType]
-        public async Task<IActionResult> Patch(Guid id, 
+         public async Task<IActionResult> Patch(Guid id, 
             [FromBody] JsonPatchDocument<EditMovieDto> jsonPatchDocument)
         {
             if (id == Guid.Empty)

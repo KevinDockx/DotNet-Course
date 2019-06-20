@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>Rmdb.Domain.Dtos.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

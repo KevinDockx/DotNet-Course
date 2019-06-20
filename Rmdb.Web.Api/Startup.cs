@@ -38,6 +38,7 @@ namespace Rmdb.Web.Api
 
             services.AddMvc(setupAction =>
                  {
+                     #region Global response type filters
                      setupAction.Filters.Add(
                          new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
                      setupAction.Filters.Add(
@@ -46,6 +47,7 @@ namespace Rmdb.Web.Api
                          new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
                      setupAction.Filters.Add(
                          new ProducesDefaultResponseTypeAttribute());
+                     #endregion
 
                      setupAction.ReturnHttpNotAcceptable = true;
 
@@ -98,21 +100,17 @@ namespace Rmdb.Web.Api
                             Url = new Uri("https://opensource.org/licenses/MIT")
                         }
                     });
-
+                
                 #region OperationFilters
-                // setupAction.OperationFilter<GetMovieOperationFilter>();
+                setupAction.OperationFilter<GetMovieOperationFilter>();
                 #endregion
 
-                var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
-                setupAction.IncludeXmlComments(xmlCommentsFullPath);
-
                 #region Multiple xml comment files
-                //var baseDirectoryInfo = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-                //foreach (var fileInfo in baseDirectoryInfo.EnumerateFiles("*.xml"))
-                //{
-                //    setupAction.IncludeXmlComments(fileInfo.FullName);
-                //}
+                var baseDirectoryInfo = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+                foreach (var fileInfo in baseDirectoryInfo.EnumerateFiles("*.xml"))
+                {
+                    setupAction.IncludeXmlComments(fileInfo.FullName);
+                }
                 #endregion
             });
         }
