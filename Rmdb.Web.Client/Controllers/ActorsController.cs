@@ -14,16 +14,18 @@ namespace Rmdb.Web.Client.Controllers
     public class ActorsController : Controller
     {
         private readonly IActorService _actorService;
+        private readonly IMapper _mapper;
 
-        public ActorsController(IActorService actorService)
+        public ActorsController(IActorService actorService, IMapper mapper)
         {
-            _actorService = actorService;
+            _actorService = actorService ?? throw new ArgumentNullException(nameof(actorService)); 
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IActionResult> Index()
         {
             var actors = (await _actorService.GetAllAsync());
-            var viewModels = Mapper.Map<IEnumerable<ActorViewModel>>(actors);
+            var viewModels = _mapper.Map<IEnumerable<ActorViewModel>>(actors);
 
             return View(viewModels);
         }
@@ -42,7 +44,7 @@ namespace Rmdb.Web.Client.Controllers
                 return View(viewModel);
             }
 
-            var actor = Mapper.Map<Actor>(viewModel);
+            var actor = _mapper.Map<Actor>(viewModel);
             await _actorService.AddAsync(actor);
 
             return RedirectToAction(nameof(Index));
@@ -51,7 +53,7 @@ namespace Rmdb.Web.Client.Controllers
         public async Task<IActionResult> Update(Guid id)
         {
             var actor = await _actorService.GetAsync(id);
-            var viewModel = Mapper.Map<ActorUpdateViewModel>(actor);
+            var viewModel = _mapper.Map<ActorUpdateViewModel>(actor);
 
             return View(viewModel);
         }
@@ -65,7 +67,7 @@ namespace Rmdb.Web.Client.Controllers
                 return View(viewModel);
             }
 
-            var actor = Mapper.Map<Actor>(viewModel);
+            var actor = _mapper.Map<Actor>(viewModel);
 
             await _actorService.UpdateAsync(id, actor);
             return RedirectToAction(nameof(Index));

@@ -13,6 +13,8 @@ namespace Rmdb.Domain.Services.Profiles
 
             CreateMap<Movie, MovieDetailWithActorsDto>()
                 .ForMember(dto => dto.Actors, opt => opt.MapFrom(movie => movie.Actors.Select(x => x.Actor)));
+
+            CreateMap<Movie, EditMovieDto>(); 
         }
     }
 }

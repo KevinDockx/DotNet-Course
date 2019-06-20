@@ -12,6 +12,6 @@ namespace Rmdb.Domain.Dtos.Movies
         public DateTime ReleaseDate { get; set; }
         public TimeSpan RunTime { get; set; }
         public double Score { get; set; }
-        public bool Color { get; set; }
+        public bool Color { get; set; } 
     }
 }

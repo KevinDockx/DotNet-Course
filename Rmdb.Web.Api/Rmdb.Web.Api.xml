@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Rmdb.Web.Api</name>
+    </assembly>
+    <members>
+        <member name="M:Rmdb.Web.Api.Controllers.MoviesController.Get">
+            <summary>
+            Get a list of movies
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

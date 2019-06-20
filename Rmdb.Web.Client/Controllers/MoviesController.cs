@@ -17,17 +17,21 @@ namespace Rmdb.Web.Client.Controllers
     {
         private readonly IMovieService _movieService;
         private readonly IActorService _actorService;
+        private readonly IMapper _mapper;
 
-        public MoviesController(IMovieService movieRepository, IActorService actorRepository)
+        public MoviesController(IMovieService movieRepository, 
+            IActorService actorRepository,
+            IMapper mapper)
         {
-            _movieService = movieRepository;
-            _actorService = actorRepository;
+            _movieService = movieRepository ?? throw new ArgumentNullException(nameof(movieRepository));
+            _actorService = actorRepository ?? throw new ArgumentNullException(nameof(actorRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IActionResult> Index()
         {
             var movies = (await _movieService.GetAllAsync());
-            var viewModels = Mapper.Map<IEnumerable<MovieViewModel>>(movies);
+            var viewModels = _mapper.Map<IEnumerable<MovieViewModel>>(movies);
 
             return View(viewModels);
         }
@@ -40,11 +44,25 @@ namespace Rmdb.Web.Client.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var viewModel = Mapper.Map<MovieDetailsViewModel>(movie);
             var actors = await _actorService.GetAllAsync();
-            viewModel.Items = actors
-                .Select(actor => new SelectListItem($"{ actor.Name} {actor.LastName}", actor.Id.ToString()));
 
+            // fill actors in movie actors         
+            foreach (var movieActor in movie.Actors)
+            {
+                movieActor.MovieId = movie.Id;
+                movieActor.Actor = actors.FirstOrDefault(a => a.Id == movieActor.ActorId);
+            }
+
+            var viewModel = _mapper.Map<MovieDetailsViewModel>(movie);
+            if (actors.Any())
+            {             
+                viewModel.Items = actors
+                    .Select(actor => new SelectListItem($"{ actor.Name} {actor.LastName}", actor.Id.ToString()));
+            }
+            else
+            {
+                viewModel.Items = new List<SelectListItem>() { new SelectListItem("--", Guid.Empty.ToString())};
+            }
             return View(viewModel);
         }
 
@@ -73,7 +91,7 @@ namespace Rmdb.Web.Client.Controllers
                 return View(viewModel);
             }
 
-            var movie = Mapper.Map<Movie>(viewModel);
+            var movie = _mapper.Map<Movie>(viewModel);
             await _movieService.CreateAsync(movie);
 
             return RedirectToAction(nameof(Index));
@@ -88,7 +106,7 @@ namespace Rmdb.Web.Client.Controllers
                 RedirectToAction(nameof(Create));
             }
 
-            var viewModel = Mapper.Map<MovieUpdateViewModel>(movie);
+            var viewModel = _mapper.Map<MovieUpdateViewModel>(movie);
             return View(viewModel);
         }
 
@@ -100,10 +118,10 @@ namespace Rmdb.Web.Client.Controllers
                 return View(viewModel);
             }
 
-            var movie = Mapper.Map<Movie>(viewModel);
+            var movie = _mapper.Map<Movie>(viewModel);
             await _movieService.UpdateAsync(id, movie);
 
-            return RedirectToAction(nameof(Details));
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         public async Task<IActionResult> Delete(Guid id)

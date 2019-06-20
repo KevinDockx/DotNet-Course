@@ -13,6 +13,6 @@ namespace Rmdb.Domain.Dtos.Movies
         public TimeSpan RunTime { get; set; }
         public double Score { get; set; }
         public bool Color { get; set; }
-        public IEnumerable<ActorListDto> Actors { get; set; }
+        public IEnumerable<ActorListDto> Actors { get; set; } = new List<ActorListDto>();
     }
 }

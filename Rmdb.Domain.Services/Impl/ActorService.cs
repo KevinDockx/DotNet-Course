@@ -13,27 +13,34 @@ namespace Rmdb.Domain.Services.Impl
     public class ActorService : IActorService
     {
         private readonly RmdbContext _ctx;
+        private readonly IMapper _mapper;
 
-        public ActorService(RmdbContext ctx)
+        public ActorService(RmdbContext ctx, IMapper mapper)
         {
-            _ctx = ctx;
+            _ctx = ctx ?? throw new ArgumentNullException(nameof(ctx));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
+
         public async Task<IEnumerable<ActorListDto>> GetAsync()
         {
-            return await _ctx.Actors.ProjectTo<ActorListDto>().ToListAsync();
+            return await _ctx.Actors.ProjectTo<ActorListDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<ActorDetailDto> GetAsync(Guid id)
         {
             return await _ctx.Actors
-                .ProjectTo<ActorDetailDto>()
+                .ProjectTo<ActorDetailDto>(_mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Guid> AddAsync(AddActorDto addActor)
         {
-            var newActor = new Person(addActor.Name, addActor.LastName);
-
+            var newActor = new Person(addActor.Name, addActor.LastName)
+            {
+                BirthDate = addActor.BirthDate,
+                Deceased = addActor.Deceased
+            };
+            
             await _ctx.Actors.AddAsync(newActor);
 
             await _ctx.SaveChangesAsync();
@@ -57,7 +64,7 @@ namespace Rmdb.Domain.Services.Impl
 
             await _ctx.SaveChangesAsync();
 
-            return Mapper.Map<ActorDetailDto>(actor);
+            return _mapper.Map<ActorDetailDto>(actor);
         }
 
         public async Task<bool> DeleteAsync(Guid id)

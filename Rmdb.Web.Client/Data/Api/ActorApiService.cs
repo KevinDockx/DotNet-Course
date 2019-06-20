@@ -101,8 +101,10 @@ namespace Rmdb.Web.Client.Data.Api
             {
                 var stream = await response.Content.ReadAsStreamAsync();
                 response.EnsureSuccessStatusCode();
-                return _mapper.Map<IEnumerable<Actor>>(
-                    stream.ReadAndDeserializeFromJson<List<ActorListDto>>());
+
+                var actorList = stream.ReadAndDeserializeFromJson<List<ActorListDto>>();
+                var mappedActorList = _mapper.Map<IEnumerable<Actor>>(actorList);
+                return mappedActorList;
             }
         }
 

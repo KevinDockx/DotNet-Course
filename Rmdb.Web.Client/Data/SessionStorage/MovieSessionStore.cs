@@ -12,7 +12,7 @@ namespace Rmdb.Web.Client.Data.SessionStorage
     /* this repository is only for demo purposes */
     public class MovieSessionStore : IMovieService
     {
-        private ActorSessionStore _actorStore;
+        private readonly ActorSessionStore _actorStore;
 
         private const string Key = "Movies";
 

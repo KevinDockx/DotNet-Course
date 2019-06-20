@@ -14,28 +14,30 @@ namespace Rmdb.Domain.Services.Impl
     public class MovieService : IMovieService
     {
         private readonly RmdbContext _ctx;
+        private readonly IMapper _mapper;
 
-        public MovieService(RmdbContext ctx)
+        public MovieService(RmdbContext ctx, IMapper mapper)
         {
-            _ctx = ctx;
+            _ctx = ctx ?? throw new ArgumentNullException(nameof(ctx));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<MovieListDto>> GetAsync()
         {
-            return await _ctx.Movies.ProjectTo<MovieListDto>().ToListAsync();
+            return await _ctx.Movies.ProjectTo<MovieListDto>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<MovieDetailDto> GetAsync(Guid id)
         {
             return await _ctx.Movies
-                .ProjectTo<MovieDetailDto>()
+                .ProjectTo<MovieDetailDto>(_mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
         
         public async Task<MovieDetailWithActorsDto> GetWithActorsAsync(Guid id)
         {
             return await _ctx.Movies
-                .ProjectTo<MovieDetailWithActorsDto>()
+                .ProjectTo<MovieDetailWithActorsDto>(_mapper.ConfigurationProvider)
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
 
@@ -43,9 +45,13 @@ namespace Rmdb.Domain.Services.Impl
         {
             var newMovie = new Movie(movie.Title)
             {
-                Description = movie.Description
+                Description = movie.Description,
+                ReleaseDate = movie.ReleaseDate,
+                RunTime = movie.RunTime,
+                Score = movie.Score,
+                Color = movie.Color
             };
-
+                    
             await _ctx.Movies.AddAsync(newMovie);
 
             await _ctx.SaveChangesAsync();
@@ -71,7 +77,7 @@ namespace Rmdb.Domain.Services.Impl
 
             await _ctx.SaveChangesAsync();
 
-            return Mapper.Map<MovieDetailDto>(movie);
+            return _mapper.Map<MovieDetailDto>(movie);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -104,8 +110,7 @@ namespace Rmdb.Domain.Services.Impl
 
             await _ctx.SaveChangesAsync();
 
-            return Mapper.Map<ActorListDto>(actor);
+            return _mapper.Map<ActorListDto>(actor);
         }
-
     }
 }
