@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,7 @@ namespace Rmdb.Web.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        //[Authorize(Policy = "MustLiveInBelgium")]
         public async Task<ActionResult<IEnumerable<MovieListDto>>> Get()
         {
             return Ok(await _movieService.GetAsync());

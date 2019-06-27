@@ -4,6 +4,7 @@
 
 using IdentityServer4.Models;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace FancyCompanyName.IDP
 {
@@ -22,7 +23,7 @@ namespace FancyCompanyName.IDP
         {
             return new ApiResource[]
             {
-                new ApiResource("rmdbapi", "RMDB Api")
+                new ApiResource("rmdbapi", "RMDB Api", new List<string>() { "country" } )
             };
         }
 
@@ -45,7 +46,9 @@ namespace FancyCompanyName.IDP
                     PostLogoutRedirectUris = { "https://localhost:44336/signout-callback-oidc" },
 
                     AllowOfflineAccess = true,
-                    AllowedScopes = { "openid", "profile", "rmdbapi" }
+                    AllowedScopes = { "openid", "profile", "rmdbapi" },
+
+                    AccessTokenLifetime = 90                    
                 } 
             };
         }

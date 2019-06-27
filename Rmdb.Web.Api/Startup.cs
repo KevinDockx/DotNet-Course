@@ -1,9 +1,12 @@
 
 using AutoMapper;
+using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +15,7 @@ using Rmdb.Domain.Services;
 using Rmdb.Domain.Services.Impl;
 using Rmdb.Domain.Services.Profiles;
 using Rmdb.Infrastructure;
+using Rmdb.Web.Api.Authorization;
 using Rmdb.Web.Api.OperationFilters;
 using System;
 using System.IO;
@@ -20,50 +24,105 @@ using System.Reflection;
 
 namespace Rmdb.Web.Api
 {
+    /// <summary>
+    /// Startup class
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// Startup constructor
+        /// </summary>
+        /// <param name="configuration">Injected object to access app configuration</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Access configuration for application
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+
+        /// <summary>
+        ///  This method gets called by the runtime. Use this method to add services to the container.
+        /// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        /// </summary>
         public void ConfigureServices(IServiceCollection services)
         {
+            #region built-in option for bearer auth
+            //services.AddAuthentication("Bearer")
+            //   .AddJwtBearer("Bearer", options =>
+            //   {
+            //       options.Authority = "https://localhost:44351";
+            //       options.Audience = "rmdbapi";
+            //   });
+            #endregion
+
+            #region idsrv wrapper for bearer auth
+            //services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            //    .AddIdentityServerAuthentication(options =>
+            //    {
+            //        options.Authority = "https://localhost:44351";
+            //        options.ApiName = "rmdbapi";
+            //    });
+            #endregion
+
+            #region Must live in Belgium auth policy & handler registration
+
+            //services.AddSingleton<IAuthorizationHandler, MustLiveInCountryHandler>();
+            //_ = services.AddAuthorization(authorizationOptions =>
+            //  {
+            //      authorizationOptions.AddPolicy(
+            //          "MustLiveInBelgium",
+            //          policyBuilder =>
+            //          {
+            //            policyBuilder.RequireAuthenticatedUser();
+            //            policyBuilder.AddRequirements(
+            //                      new MustLiveInCountryRequirement("BE"));
+            //          });
+            //  });
+
+            #endregion
+
             services.AddDbContext<RmdbContext>(opt =>
             opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddMvc(setupAction =>
-                 {
-                     #region Global response type filters
-                     setupAction.Filters.Add(
-                         new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
-                     setupAction.Filters.Add(
-                         new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
-                     setupAction.Filters.Add(
-                         new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
-                     setupAction.Filters.Add(
-                         new ProducesDefaultResponseTypeAttribute());
+            _ = services.AddMvc(setupAction =>
+                   {
+                       #region add global authorization filter
+                       //var policy = new AuthorizationPolicyBuilder()
+                       //          .RequireAuthenticatedUser()
+                       //          .Build();
+                       //setupAction.Filters.Add(new AuthorizeFilter(policy));
+                       #endregion
+
+                       #region Global response type filters
+                       setupAction.Filters.Add(
+                           new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
+                       setupAction.Filters.Add(
+                           new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
+                       setupAction.Filters.Add(
+                           new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
+                       setupAction.Filters.Add(
+                           new ProducesDefaultResponseTypeAttribute());
                      #endregion
 
                      setupAction.ReturnHttpNotAcceptable = true;
 
-                     var jsonOutputFormatter = setupAction.OutputFormatters
-                         .OfType<JsonOutputFormatter>().FirstOrDefault();
+                       var jsonOutputFormatter = setupAction.OutputFormatters
+                           .OfType<JsonOutputFormatter>().FirstOrDefault();
 
-                     if (jsonOutputFormatter != null)
-                     {
+                       if (jsonOutputFormatter != null)
+                       {
                          // remove text/json as it isn't the approved media type
                          // for working with JSON at API level
                          if (jsonOutputFormatter.SupportedMediaTypes.Contains("text/json"))
-                         {
-                             jsonOutputFormatter.SupportedMediaTypes.Remove("text/json");
-                         }
-                     }
-                 }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                           {
+                               jsonOutputFormatter.SupportedMediaTypes.Remove("text/json");
+                           }
+                       }
+                   }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -115,7 +174,10 @@ namespace Rmdb.Web.Api
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary> 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -134,6 +196,8 @@ namespace Rmdb.Web.Api
             });
 
             app.UseHttpsRedirection();
+
+            app.UseAuthentication();
 
             app.UseMvc();
         }

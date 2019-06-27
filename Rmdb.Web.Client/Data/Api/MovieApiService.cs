@@ -20,39 +20,38 @@ namespace Rmdb.Web.Client.Data.Api
     public class MovieApiService : IMovieService
     {
         //  private HttpClient _httpClient = new HttpClient();
-
-       
-        private HttpClient _httpClient = new HttpClient(
-         new HttpClientHandler()
-         {
-             AutomaticDecompression = System.Net.DecompressionMethods.GZip
-         });
+               
+        //private HttpClient _httpClient = new HttpClient(
+        // new HttpClientHandler()
+        // {
+        //     AutomaticDecompression = System.Net.DecompressionMethods.GZip
+        // });
 
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMapper _mapper;
 
-        public MovieApiService(IMapper mapper, IHttpClientFactory httpClientFactory)
-        {
-            _mapper = mapper ?? 
-                throw new ArgumentNullException(nameof(mapper));
-            _httpClientFactory = httpClientFactory ??
-                throw new ArgumentNullException(nameof(httpClientFactory));
-
-            // set up httpclient defaults
-            _httpClient.BaseAddress = new Uri("http://localhost:52330/");
-            _httpClient.Timeout = new TimeSpan(0, 0, 30);
-            _httpClient.DefaultRequestHeaders.Clear();
-        }
-
-        #region Constructor with HttpClientFactory
-        //public MovieApiService(IHttpClientFactory httpClientFactory, IMapper mapper)
+        //public MovieApiService(IMapper mapper, IHttpClientFactory httpClientFactory)
         //{
+        //    _mapper = mapper ?? 
+        //        throw new ArgumentNullException(nameof(mapper));
         //    _httpClientFactory = httpClientFactory ??
         //        throw new ArgumentNullException(nameof(httpClientFactory));
-        //    _mapper = mapper ??
-        //        throw new ArgumentNullException(nameof(mapper)); 
+
+        //    // set up httpclient defaults
+        //    _httpClient.BaseAddress = new Uri("http://localhost:52330/");
+        //    _httpClient.Timeout = new TimeSpan(0, 0, 30);
+        //    _httpClient.DefaultRequestHeaders.Clear();
         //}
+
+        #region Constructor with HttpClientFactory
+        public MovieApiService(IHttpClientFactory httpClientFactory, IMapper mapper)
+        {
+            _httpClientFactory = httpClientFactory ??
+                throw new ArgumentNullException(nameof(httpClientFactory));
+            _mapper = mapper ??
+                throw new ArgumentNullException(nameof(mapper));
+        }
         #endregion
 
         #region GetAllAsync 
@@ -161,7 +160,9 @@ namespace Rmdb.Web.Client.Data.Api
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
 
-            using (var response = await _httpClient.SendAsync(request,
+            var client = _httpClientFactory.CreateClient("MoviesClient");
+
+            using (var response = await client.SendAsync(request,
                 HttpCompletionOption.ResponseHeadersRead))
             {
                 var stream = await response.Content.ReadAsStreamAsync();
@@ -230,7 +231,7 @@ namespace Rmdb.Web.Client.Data.Api
                 throw new ArgumentNullException(nameof(movie));
             }
 
-            //var client = _httpClientFactory.CreateClient("MoviesClient");
+            var client = _httpClientFactory.CreateClient("MoviesClient");
 
             var movieToAdd = _mapper.Map<AddMovieDto>(movie);
 
@@ -252,7 +253,7 @@ namespace Rmdb.Web.Client.Data.Api
                     request.Content.Headers.ContentType =
                       new MediaTypeHeaderValue("application/json");
 
-                    using (var response = await _httpClient
+                    using (var response = await client
                         .SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
                     {
                         response.EnsureSuccessStatusCode();

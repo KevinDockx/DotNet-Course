@@ -4,11 +4,72 @@
         <name>Rmdb.Web.Api</name>
     </assembly>
     <members>
+        <member name="T:Rmdb.Web.Api.Authorization.MustLiveInCountryHandler">
+            <summary>
+            Authorization layer handler for user country
+            </summary>
+        </member>
+        <member name="M:Rmdb.Web.Api.Authorization.MustLiveInCountryHandler.#ctor">
+            <summary>
+            Constructor for MustLiveInCountryHandler
+            </summary>
+        </member>
+        <member name="M:Rmdb.Web.Api.Authorization.MustLiveInCountryHandler.HandleRequirementAsync(Microsoft.AspNetCore.Authorization.AuthorizationHandlerContext,Rmdb.Web.Api.Authorization.MustLiveInCountryRequirement)">
+            <summary>
+            Handle the requirement
+            </summary>
+            <param name="context"></param>
+            <param name="requirement"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Rmdb.Web.Api.Authorization.MustLiveInCountryRequirement">
+            <summary>
+            Authorization layer requirement for user country
+            </summary>
+        </member>
+        <member name="P:Rmdb.Web.Api.Authorization.MustLiveInCountryRequirement.Country">
+            <summary>
+            The country that must be matched
+            </summary>
+        </member>
+        <member name="M:Rmdb.Web.Api.Authorization.MustLiveInCountryRequirement.#ctor(System.String)">
+            <summary>
+            MustLiveInCountryRequirement constructor
+            </summary>
+            <param name="country"></param>
+        </member>
         <member name="M:Rmdb.Web.Api.Controllers.MoviesController.Get">
             <summary>
             Get a list of movies
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:Rmdb.Web.Api.Startup">
+            <summary>
+            Startup class
+            </summary>
+        </member>
+        <member name="M:Rmdb.Web.Api.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Startup constructor
+            </summary>
+            <param name="configuration">Injected object to access app configuration</param>
+        </member>
+        <member name="P:Rmdb.Web.Api.Startup.Configuration">
+            <summary>
+            Access configuration for application
+            </summary>
+        </member>
+        <member name="M:Rmdb.Web.Api.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+             This method gets called by the runtime. Use this method to add services to the container.
+            For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+            </summary>
+        </member>
+        <member name="M:Rmdb.Web.Api.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment)">
+            <summary>
+            This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            </summary> 
         </member>
     </members>
 </doc>
